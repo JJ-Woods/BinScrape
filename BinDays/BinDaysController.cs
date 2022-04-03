@@ -6,7 +6,7 @@ using System.Reflection;
 namespace BinScrape;
 
 [ApiController]
-[Route("[controller]")]
+[Route("")]
 public class BinDaysController : ControllerBase
 {
     private readonly ILogger<BinDaysController> _logger;

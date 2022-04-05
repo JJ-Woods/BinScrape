@@ -11,22 +11,16 @@ public class BinDaysController : ControllerBase
 {
     private readonly ILogger<BinDaysController> _logger;
 
-    private readonly string _calendarLink;
-
-    private readonly Dictionary<BinType, string> _binPatterns;
+    private readonly BinDaysConfig _binDaysConfig;
 
     private BinCollectionWebPage? _lazyCachedWebPage;
 
-    public BinDaysController(ILogger<BinDaysController> logger)
+    public BinDaysController(
+        ILogger<BinDaysController> logger
+        , BinDaysConfig binDaysConfig)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        _calendarLink = "https://www.huntingdonshire.gov.uk/refuse-calendar/10023829590";
-
-        _binPatterns = new Dictionary<BinType, string>();
-        _binPatterns.Add(BinType.BlackBin, "The next collection for your domestic waste in your 240lt wheeled bin is on <strong>(.*)<\\/strong>");
-        _binPatterns.Add(BinType.BlueBin, "The next collection for your dry recycling in your 240lt wheeled bin is on <strong>(.*)<\\/strong>");
-        _binPatterns.Add(BinType.GreenBin, "The next collection for your garden waste in your 240lt wheeled bin is on <strong>(.*)<\\/strong>");
+        _binDaysConfig = binDaysConfig ?? throw new ArgumentNullException(nameof(binDaysConfig));
     }
 
     private async Task<BinCollectionWebPage> GetBinCollectionWebPageAsync(bool ignoreCache = false)
@@ -36,7 +30,7 @@ public class BinDaysController : ControllerBase
         if(ignoreCache || !getFromCache)
         {
             var client = new HttpClient();
-            var html = await client.GetStringAsync(_calendarLink);
+            var html = await client.GetStringAsync(_binDaysConfig.BinCalendarLink);
             _lazyCachedWebPage = new BinCollectionWebPage(DateTime.Now, html);
         }
         
@@ -47,9 +41,9 @@ public class BinDaysController : ControllerBase
     {
         var collectionPage = GetBinCollectionWebPageAsync().Result;
 
-        var binDays = _binPatterns.Select(pattern => 
+        var binDays = _binDaysConfig.BinPatterns.Select(pattern => 
         {
-            var regexMatch = Regex.Match(collectionPage.Html, pattern.Value);
+            var regexMatch = Regex.Match(collectionPage.Html, pattern.Pattern);
 
             if(!regexMatch.Success)
                 throw new Exception("Shit son.");
@@ -57,9 +51,9 @@ public class BinDaysController : ControllerBase
             var collectionDate = regexMatch.Groups[1].ToString();
 
             var binTypeLongForm = pattern
-                .Key
+                .BinType
                 .GetType()
-                .GetMember(pattern.Key.ToString())
+                .GetMember(pattern.BinType.ToString())
                 .FirstOrDefault()
                 .GetCustomAttribute<DisplayAttribute>()
                 .Name;

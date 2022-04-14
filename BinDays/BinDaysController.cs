@@ -15,31 +15,21 @@ public class BinDaysController : ControllerBase
 
     private BinCollectionWebPage? _lazyCachedWebPage;
 
+    private IBinCollectionWebPageFactory _binCollectionWebPageFactory;
+
     public BinDaysController(
         ILogger<BinDaysController> logger
-        , BinDaysConfig binDaysConfig)
+        , BinDaysConfig binDaysConfig
+        , IBinCollectionWebPageFactory binCollectionWebPageFactory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _binDaysConfig = binDaysConfig ?? throw new ArgumentNullException(nameof(binDaysConfig));
-    }
-
-    private async Task<BinCollectionWebPage> GetBinCollectionWebPageAsync(bool ignoreCache = false)
-    {
-        var getFromCache = false;
-
-        if(ignoreCache || !getFromCache)
-        {
-            var client = new HttpClient();
-            var html = await client.GetStringAsync(_binDaysConfig.BinCalendarLink);
-            _lazyCachedWebPage = new BinCollectionWebPage(DateTime.Now, html);
-        }
-        
-        return _lazyCachedWebPage ?? throw new Exception("Well Shit.");
+        _binCollectionWebPageFactory = binCollectionWebPageFactory ?? throw new ArgumentNullException(nameof(binCollectionWebPageFactory));
     }
 
     public IEnumerable<BinCollectionDay> Get()
     {
-        var collectionPage = GetBinCollectionWebPageAsync().Result;
+        var collectionPage = _binCollectionWebPageFactory.CreateAsync(_binDaysConfig.BinCalendarLink).Result;
 
         var binDays = _binDaysConfig.BinPatterns.Select(pattern => 
         {

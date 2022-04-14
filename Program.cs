@@ -21,7 +21,8 @@ builder.Services
     .AddSingleton<BinDaysConfig>(container => 
     {
         return container.GetService<IOptions<BinDaysConfig>>().Value;
-    });           
+    })
+    .AddSingleton<IBinCollectionWebPageFactory, BinCollectionWebPageFactory>();           
 
 var app = builder.Build();
 

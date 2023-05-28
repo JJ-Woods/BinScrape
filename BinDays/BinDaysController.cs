@@ -29,9 +29,6 @@ public class BinDaysController : ControllerBase
     {
         var collectionPage = _binCollectionWebPageFactory.CreateAsync(_binDaysConfig.BinCalendarLink).Result;
 
-        var test = _binDaysConfig.BinPatterns.First().Pattern;
-        var regexMatch = Regex.Match(collectionPage.Html, test);
-
         var binDays = _binDaysConfig.BinPatterns.Select(pattern =>
         {
             var regexMatch = Regex.Match(collectionPage.Html, pattern.Pattern);

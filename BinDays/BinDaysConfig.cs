@@ -4,5 +4,5 @@ public class BinDaysConfig
 {
     public string BinCalendarLink { get; set; }
 
-    public IEnumerable<BinPattern> BinPatterns { get; set; }
+    public BinPattern[] BinPatterns { get; set; }
 }

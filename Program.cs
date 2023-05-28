@@ -18,11 +18,11 @@ builder.Services.AddSwaggerGen();
 builder.Services
     .Configure<BinDaysConfig>(config.GetSection("BinDaysConfig"))
     .AddSingleton<IValidateOptions<BinDaysConfig>, BinDaysConfigValidator>()
-    .AddSingleton<BinDaysConfig>(container => 
+    .AddSingleton<BinDaysConfig>(container =>
     {
         return container.GetService<IOptions<BinDaysConfig>>().Value;
     })
-    .AddSingleton<IBinCollectionWebPageFactory, BinCollectionWebPageFactory>();           
+    .AddSingleton<IBinCollectionWebPageFactory, BinCollectionWebPageFactory>();
 
 var app = builder.Build();
 

@@ -13,8 +13,6 @@ public class BinDaysController : ControllerBase
 
     private readonly BinDaysConfig _binDaysConfig;
 
-    private BinCollectionWebPage? _lazyCachedWebPage;
-
     private IBinCollectionWebPageFactory _binCollectionWebPageFactory;
 
     public BinDaysController(
@@ -31,11 +29,14 @@ public class BinDaysController : ControllerBase
     {
         var collectionPage = _binCollectionWebPageFactory.CreateAsync(_binDaysConfig.BinCalendarLink).Result;
 
-        var binDays = _binDaysConfig.BinPatterns.Select(pattern => 
+        var test = _binDaysConfig.BinPatterns.First().Pattern;
+        var regexMatch = Regex.Match(collectionPage.Html, test);
+
+        var binDays = _binDaysConfig.BinPatterns.Select(pattern =>
         {
             var regexMatch = Regex.Match(collectionPage.Html, pattern.Pattern);
 
-            if(!regexMatch.Success)
+            if (!regexMatch.Success)
                 throw new Exception("Shit son.");
 
             var collectionDate = regexMatch.Groups[1].ToString();

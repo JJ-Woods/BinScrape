@@ -7,16 +7,19 @@ public class BinDaysConfigValidator : IValidateOptions<BinDaysConfig>
 {
     public ValidateOptionsResult Validate(string name, BinDaysConfig options)
     {
-        if(!NoDuplicateKeys(options))
+        if (!NoDuplicateKeys(options))
             return ValidateOptionsResult.Fail("There are multiple configurations for a single bin type. Requires exactly one config per object.");
 
+        if (options.BinPatterns.Count() == 0)
+            return ValidateOptionsResult.Fail("There must be at least one configuration option");
+
         //Impliment better config checks later
-        foreach(var pattern in options.BinPatterns.Select(bp => bp.Pattern))
+        foreach (var pattern in options.BinPatterns.Select(bp => bp.Pattern))
         {
-            if(!IsValidRegex(pattern))
+            if (!IsValidRegex(pattern))
                 return ValidateOptionsResult.Fail("Invalid regex");
 
-            if(!OnlyOneCaptureGroup(pattern))
+            if (!OnlyOneCaptureGroup(pattern))
                 return ValidateOptionsResult.Fail("More than one capture group");
         }
 
@@ -35,7 +38,7 @@ public class BinDaysConfigValidator : IValidateOptions<BinDaysConfig>
 
     private bool IsValidRegex(string pattern)
     {
-        
+
         return true;
     }
 
